@@ -1,5 +1,6 @@
 // https://jenkins.io/doc/pipeline/tour/running-multiple-steps/
 // https://jenkins.io/doc/pipeline/tour/post/
+// https://jenkins.io/doc/pipeline/tour/deployment/
 
 pipeline {
     agent any
@@ -8,6 +9,16 @@ pipeline {
             steps {
                 bat 'hello.bat'
                 bat 'python hello.py'
+            }
+        }
+        stage('Test') {
+            steps {
+                echo 'Testing'
+            }
+        }
+        stage("Deploy") {
+            steps {
+                echo "Deploying"
             }
         }
     }
