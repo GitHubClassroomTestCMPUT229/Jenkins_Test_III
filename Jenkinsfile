@@ -14,7 +14,7 @@ pipeline {
     post {
         always {
             echo 'This will always run'
-            mail to: 'hoye@ualberta.ca',
+            mail to: 'stuarthoye@gmail.com',
                 subject: "Notification about ${currentBuild.fullDisplayName}",
                 body: "URL:  ${env.BUILD_URL}"
         }
