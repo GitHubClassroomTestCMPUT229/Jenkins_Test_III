@@ -4,6 +4,7 @@ pipeline {
         stage('build') {
             steps {
                 bat 'hello.bat'
+                bat 'python hello.py'
             }
         }
     }
