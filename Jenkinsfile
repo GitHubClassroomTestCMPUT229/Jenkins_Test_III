@@ -14,9 +14,10 @@ pipeline {
     post {
         always {
             echo 'This will always run'
-            mail to: 'stuarthoye@gmail.com',
-                subject: "Notification about ${currentBuild.fullDisplayName}",
-                body: "URL:  ${env.BUILD_URL}"
+            // TODO: Review build log from build 11
+            // mail to: 'stuarthoye@gmail.com',
+            //    subject: "Notification about ${currentBuild.fullDisplayName}",
+            //    body: "URL:  ${env.BUILD_URL}"
         }
         success {
             echo 'This will run only if successful'
