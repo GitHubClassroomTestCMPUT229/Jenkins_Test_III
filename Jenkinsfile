@@ -1,4 +1,5 @@
 // https://jenkins.io/doc/pipeline/tour/running-multiple-steps/
+// https://jenkins.io/doc/pipeline/tour/post/
 
 pipeline {
     agent any
@@ -13,6 +14,9 @@ pipeline {
     post {
         always {
             echo 'This will always run'
+            mail to: 'hoye@ualberta.ca',
+                subject: "Notification about ${currentBuild.fullDisplayName}",
+                body: "URL:  ${env.BUILD_URL}"
         }
         success {
             echo 'This will run only if successful'
