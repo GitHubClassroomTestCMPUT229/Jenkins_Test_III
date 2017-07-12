@@ -3,5 +3,3 @@
 @ECHO OFF
 echo "HELLO #2"
 echo "Hello world!"
-echo "HELLO AGAIN!"
-
