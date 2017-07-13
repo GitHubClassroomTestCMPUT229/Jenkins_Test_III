@@ -145,7 +145,6 @@ def input_blob(test, subm, resl, diag):
     pass
 
 def main(input_type="line"):
-    os.chdir("./.travis/")
     #no use in running if content directories aren't present
     test = "test_cases"
     subm = "submission"
