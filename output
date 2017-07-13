@@ -1,0 +1,13 @@
+Input: 1; Expectation: 16777216; Output: 16777216
+Input: 2; Expectation: 33554432; Output: 33554432
+Input: 3; Expectation: 50331648; Output: 50331648
+Input: 4; Expectation: 67108864; Output: 67108864
+Input: 5; Expectation: 83886080; Output: 83886080
+Input: 6; Expectation: 100663296; Output: 100663296
+Input: 7; Expectation: 117440512; Output: 117440512
+Input: 8; Expectation: 134217728; Output: 134217728
+Input: 9; Expectation: 150994944; Output: 150994944
+Input: 10; Expectation: 167772160; Output: 167772160
+Input: -1; Expectation: -1; Output: -1
+
+11/11 test cases passed.

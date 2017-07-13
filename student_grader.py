@@ -13,9 +13,9 @@ import os, time, re, sys
 from subprocess import Popen, PIPE, STDOUT
 
 def run(fn, sample_input='\n'):
-    proc = Popen(["spim", "-file", "./submission/"+fn], stdin=PIPE, stdout=PIPE, stderr=PIPE)
-    proc.stdin.write(sample_input)
-    return proc 
+	proc = Popen(["spim", "-file", fn], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+	proc.stdin.write(sample_input)
+	return proc 
 
 def remove_header(output):
     #remove output header
@@ -29,46 +29,47 @@ def remove_header(output):
         output = re.sub(hdr, "", output)
     return output
 
-def grade(p, f):
-    f = open("results/" + f, 'w')
-    for proc in p:
-        time.sleep(.1)
-        if proc.poll() is None:
-            #process is either hanging or being slow
-            time.sleep(5)
-            if proc.poll() is None:
-                proc.kill()
-                f.write("Process hung; no results to report\n")
-                continue
-        output = remove_header(proc.stdout.read())
-        errors = proc.stderr.read()
-        if errors == "":
-            f.write(output + '\n')
-        else:
-            f.write(output + '\t' + errors + '\n')
-    f.close() 
+def poll_all(p):
+	f = open("output", "w")
+	for proc in p:
+		time.sleep(.1)
+		if proc.poll() is None:
+			#process is either hanging or being slow
+			time.sleep(.5)
+			if proc.poll() is None:
+				proc.kill()
+				f.write("Process hung; no results to report\n")
+				continue
+		output = remove_header(proc.stdout.read())
+		errors = proc.stderr.read()
+		if errors == "":
+			f.write(output + '\n')
+		else:
+			f.write(output + '\t' + errors + '\n')
+	f.close() 
 
-def compare(results, expectations):
-    expected = True
-    diag = open("./diagnostics/output", "a")
-    results = open("./results/{}".format(results), "r")
-    expectations = open("./expectations/{}".format(expectations), "r")
+def grade():
+	ins = open("inputs", "r")
+	inputs = ins.readlines()
+	ins.close()
+	o = open("output", "r")
+	output = o.readlines()
+	o.close()
+	e = open("expect", "r")
+	expect = e.readlines()
+	e.close()
 
-    r = results.readlines()
-    e = expectations.readlines() 
-    assert(len(e) == len(r))
-    for i in range(len(e)):
-        status = "PASSED" if r[i] == e[i] else "FAILED"
-        diag.write("Test Case {}: {}\n".format(i+1, status))
-        diag.write("\tExpected: {}".format(e[i]))
-        diag.write("\tReceived: {}".format(r[i]))
-        if status == "FAILED":
-            expected = False
-    results.close()
-    expectations.close()
-    diag.close()
-    
-    return expected
+	counter = 0
+	o = open("output", "w")
+	for i in range(len(output)):
+		string = "Input: " + inputs[i].strip() + "; Expectation: " + expect[i].strip() + "; Output: " + output[i].strip() + "\n"
+		o.write(string)
+		if expect[i] == output[i]:
+			counter += 1
+	o.write("\n")
+	o.write(str(counter) + "/" + str(len(output)) + " test cases passed.")
+	o.close()
+	return counter == len(output)
 
 # ASSUMPTION: Git repos' names will contain the team name
 #             since repos currently take the format "<team_name>_<lab>".
@@ -95,40 +96,22 @@ def update_results(output_file, passed):
 
 # Takes an input file that consists of a number of lines of input
 # and feeds them into spim subprocesses.
-def input_lines(test, subm, resl, diag):
-    # ASSUMPTION: THE FILE THAT WILL BE USED TO GRADE SOME SUBMISSION
-    #             WILL SHARE NAMES WITH THE SUBMISSION FILE.
-    for submission in os.listdir(subm):
-        print submission
-        #cycle through samples to test:
-        output_file = ""
-        cases_f = submission[:submission.rfind(".")]
-        cases = open("{}/{}".format(test, cases_f), 'r')
-        results = []
-        for line in cases.readlines():
-            sample_input = "{}{}".format(line.strip(), "\n")
-            #create process
-            p = run(submission, sample_input)
-            results.append(p)
-        cases.close()
+def input_lines(lab):
+	submission = open(lab, "r")
+	expectations = open("expect", "r")
+	inputs = open("inputs", "r")
 
-        output_file = generate_filename(submission, cases_f)
-        grade(results, output_file)
-        passed = compare(output_file, cases_f)
-        update_results(output_file, passed)
+	procs = []
+	for line in inputs.readlines():
+		sample_input = "{}{}".format(line.strip(), "\n")
+		#create process
+		p = run(lab, sample_input)
+		procs.append(p)
+	inputs.close()	
 
-# Returns True if all tests for all files have passed; else False
-def passed_all():
-    path = "./diagnostics/"
-    files = os.listdir(path)
-    files.remove(".empty")
-    for f in files:
-        f = open("{}{}".format(path, f), "r")
-        lines = f.readlines()
-        f.close()
-        if lines[0].strip() == "False":
-            return False
-    return True
+	poll_all(procs)
+	grade()
+	# update_results(output, passed)
 
 def print_diagnostics():
     path = "./diagnostics/"
@@ -145,20 +128,11 @@ def input_blob(test, subm, resl, diag):
     pass
 
 def main(input_type="line"):
-    #no use in running if content directories aren't present
-    test = "test_cases"
-    subm = "submission"
-    resl = "results"
-    diag = "diagnostics"
-    assert os.path.isdir(test)
-    assert os.path.isdir(subm)
-    assert os.path.isdir(resl)
-    assert os.path.isdir(diag)
     if input_type == "line":
-        input_lines(test, subm, resl, diag)
+        input_lines("lab.s")
     else:
         input_blob(test, subm, resl, diag)
-    print_diagnostics()
+    # print_diagnostics()
 
        
 if __name__ == "__main__":
