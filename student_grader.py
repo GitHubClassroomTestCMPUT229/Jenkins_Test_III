@@ -13,7 +13,7 @@ import os, time, re, sys
 from subprocess import Popen, PIPE, STDOUT
 
 def run(fn, sample_input='\n'):
-    proc = Popen(["spim", "-file", "../submission/"+fn], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+    proc = Popen(["spim", "-file", "./submission/"+fn], stdin=PIPE, stdout=PIPE, stderr=PIPE)
     proc.stdin.write(sample_input)
     return proc 
 
@@ -119,7 +119,7 @@ def input_lines(test, subm, resl, diag):
 
 # Returns True if all tests for all files have passed; else False
 def passed_all():
-    path = "./.travis/diagnostics/"
+    path = "./diagnostics/"
     files = os.listdir(path)
     files.remove(".empty")
     for f in files:
@@ -148,7 +148,7 @@ def main(input_type="line"):
     os.chdir("./.travis/")
     #no use in running if content directories aren't present
     test = "test_cases"
-    subm = "../submission"
+    subm = "submission"
     resl = "results"
     diag = "diagnostics"
     assert os.path.isdir(test)
